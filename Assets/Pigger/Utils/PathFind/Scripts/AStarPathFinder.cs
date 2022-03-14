@@ -10,13 +10,61 @@ namespace Pigger.Utils.PathFind
         private const int _straightMoveCost = 10;
         private const int _diagonalMoveCost = 14;
 
-        public GameObject testObj;
         [SerializeField] private GridMaker grid;
         [SerializeField] private bool canDiagonalMove;
         private List<PathNode> openList;
         private List<PathNode> closedList;
         private List<PathNode> nodes;
 
+        public List<Vector2> GetRandomWorldPath(Vector2 followerPos)
+        {
+            GridCell cellPos = grid.gridCells.Where(s => s.IsWalkable).
+                ElementAt(Random.Range(0, grid.gridCells.Where(s => s.IsWalkable).Count()));
+            GridCell nearestStartCell = grid.FindNearestCell(followerPos);           
+            List<PathNode> path = FindPath(nearestStartCell.X, nearestStartCell.Y, cellPos.X, cellPos.Y);
+            List<Vector2> newPath = NodePathToWorldPath(path);
+            if (newPath == null)
+            {
+                Debug.LogError("PATH HAD NOT BEEN FOUND");
+                return null;
+            }
+            for (int i = 0; i < newPath.Count - 1; i++)
+            {
+                Debug.DrawLine(new Vector2(newPath[i].x, newPath[i].y),
+                    new Vector2(newPath[i + 1].x, newPath[i + 1].y), Color.red, 30f);
+            }
+            return newPath;
+        }
+
+        public List<Vector2> GetWorldPath(Vector2 followerPos, Vector2 destinationPos)
+        {
+            GridCell cellPosA = grid.FindNearestCell(followerPos);
+            GridCell cellPosB = grid.FindNearestCell(destinationPos);
+            if (cellPosA==null||cellPosB==null)
+            {
+                Debug.LogError("PATH HAD NOT BEEN FOUND");
+                return null;
+            }
+            List<PathNode> path = FindPath(cellPosA.X, cellPosA.Y, cellPosB.X, cellPosB.Y);
+            List<Vector2> newPath = NodePathToWorldPath(path);
+            if (newPath==null||newPath.Count<=0)
+            {
+                Debug.LogError("PATH HAD NOT BEEN FOUND");
+                return null;
+            }
+            if (newPath.Count == 1)
+            {
+                newPath.Add(followerPos);
+                newPath.Reverse();
+            }
+            for (int i = 0; i < newPath.Count - 1; i++)
+            {
+                Debug.DrawLine(new Vector2(newPath[i].x, newPath[i].y),
+                    new Vector2(newPath[i + 1].x, newPath[i + 1].y), Color.red, 30f);
+            }
+            return newPath;
+
+        }
         private List<PathNode> FindPath(int startX, int startY, int endX, int endY)
         {
             closedList = new List<PathNode>();
@@ -78,52 +126,6 @@ namespace Pigger.Utils.PathFind
             }
             return null;
         }
-
-        public List<Vector2> GetRandomWorldPath(Vector2 followerPos)
-        {
-            GridCell cellPos = grid.gridCells.Where(s => s.IsWalkable).
-                ElementAt(Random.Range(0, grid.gridCells.Where(s => s.IsWalkable).Count()));
-            GridCell nearestStartCell = grid.FindNearestCell(followerPos);           
-            List<PathNode> path = FindPath(nearestStartCell.X, nearestStartCell.Y, cellPos.X, cellPos.Y);
-            List<Vector2> newPath = NodePathToWorldPath(path);
-            if (newPath == null)
-            {
-                Debug.LogError("PATH HAD NOT BEEN FOUND");
-                return null;
-            }
-            for (int i = 0; i < newPath.Count - 1; i++)
-            {
-                Debug.DrawLine(new Vector2(newPath[i].x, newPath[i].y),
-                    new Vector2(newPath[i + 1].x, newPath[i + 1].y), Color.red, 30f);
-            }
-            return newPath;
-        }
-
-        public List<Vector2> GetWorldPath(Vector2 followerPos, Vector2 destinationPos)
-        {
-            GridCell cellPosA = grid.FindNearestCell(followerPos);
-            GridCell cellPosB = grid.FindNearestCell(destinationPos);
-            if (cellPosA==null||cellPosB==null)
-            {
-                Debug.LogWarning("PATH HAD NOT BEEN FOUND");
-                return null;
-            }
-            List<PathNode> path = FindPath(cellPosA.X, cellPosA.Y, cellPosB.X, cellPosB.Y);
-            List<Vector2> newPath = NodePathToWorldPath(path);
-            if (newPath==null)
-            {
-                Debug.LogError("PATH HAD NOT BEEN FOUND");
-                return null;
-            }
-            for (int i = 0; i < newPath.Count - 1; i++)
-            {
-                Debug.DrawLine(new Vector2(newPath[i].x, newPath[i].y),
-                    new Vector2(newPath[i + 1].x, newPath[i + 1].y), Color.red, 30f);
-            }
-            return newPath;
-
-        }
-
 
         private List<Vector2> NodePathToWorldPath(List<PathNode> pathNodes)
         {

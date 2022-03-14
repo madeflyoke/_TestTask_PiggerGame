@@ -40,13 +40,18 @@ namespace Pigger.Utils.Grid
 
         public GridCell GetGridCell(int x, int y)
         {
-            return gridCells.Where((s) => s.X == x && s.Y == y).First();
+            GridCell cell = gridCells.Where((s) => s.X == x && s.Y == y).FirstOrDefault();
+            if (cell==null)
+            {              
+                return null;
+            }
+            return cell;
         }
 
         public GridCell FindNearestCell(Vector2 worldPos)
         {
             GridCell cell;
-            float searchRadius = 0.2f;
+            float searchRadius = 0.1f;
             while (true)
             {
                 Collider2D coll = Physics2D.OverlapCircle(worldPos, radius: searchRadius, LayerMask.GetMask("Grid"));
@@ -58,7 +63,7 @@ namespace Pigger.Utils.Grid
                     }                         
                 }
                 searchRadius += 0.05f; //prevent infinite loop 
-                if (searchRadius > 100f)
+                if (searchRadius > 200f)
                 {
                     Debug.LogError("NEAREST CELL WAS NOT FOUND");
                     return null;

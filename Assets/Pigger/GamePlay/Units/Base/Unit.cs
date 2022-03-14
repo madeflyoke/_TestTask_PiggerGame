@@ -13,7 +13,6 @@ namespace Pigger.GamePlay.Units
             Up,
             Down
         }
-
         [Header("Rendering")]
         [SerializeField] private Sprite upMovementSprite;
         [SerializeField] private Sprite downMovementSprite;
@@ -21,6 +20,8 @@ namespace Pigger.GamePlay.Units
         [SerializeField] private Sprite rightMovementSprite;
         [Space]
         [SerializeField] private Direction startLookDirection;
+        [Header("Stats")]
+        [SerializeField] protected float defaultSpeed;
 
         protected Dictionary<Direction, Sprite> directionSprites;
         protected Direction currentDirection;
@@ -38,9 +39,16 @@ namespace Pigger.GamePlay.Units
             currentDirection = startLookDirection;
         }
 
-        protected virtual void SetDirectionSprite(Vector2 direction)
+        protected virtual void SetDirectionSprite(Vector2 direction) { }
+            
+        public virtual void GetDamage()
         {
+          
+        }
 
+        protected virtual void Die()
+        {
+            Debug.Log("DIED: " + gameObject.name);
         }
     }
 }

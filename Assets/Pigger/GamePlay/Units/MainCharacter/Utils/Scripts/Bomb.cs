@@ -30,6 +30,7 @@ namespace Pigger.GamePlay.Units.MainCharacter.Utils
         private PlayerController player;
         private List<ExplosionRay> explosionRays;
         private SpriteRenderer spriteRenderer;
+        private Rigidbody2D rb;
 
         private void Awake()
         {
@@ -37,6 +38,7 @@ namespace Pigger.GamePlay.Units.MainCharacter.Utils
             grid = FindObjectOfType<GridMaker>();
             player = FindObjectOfType<PlayerController>();
             spriteRenderer = GetComponent<SpriteRenderer>();
+            rb = GetComponent<Rigidbody2D>();
             cancellationSource = new CancellationTokenSource();
             OffRays();
             gameObject.SetActive(false);
@@ -155,6 +157,7 @@ namespace Pigger.GamePlay.Units.MainCharacter.Utils
                 }
             }
             rays.SetActive(true);
+            rb.simulated = true; //enable 1 hit damage, turned off in EnemyDamageReciever script
         }
 
         private void OffRays()

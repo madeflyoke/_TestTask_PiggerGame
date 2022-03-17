@@ -4,48 +4,58 @@ using System.Threading;
 using Pigger.GamePlay.Units.MainCharacter;
 using Pigger.Utils.PathFind;
 using System.Collections.Generic;
+using DG.Tweening;
 
 namespace Pigger.GamePlay.Units.Enemies
 {
     public abstract class BaseEnemy : Unit
     {
-        public enum EnemyState
+        protected enum EnemyState
         {
             None,
             Patrol,
             Chasing,
-            Attack
+            Attack,
+            Stunned
         }
+
+        [SerializeField] private float idleStandingTime;
+
+        [Header("Chase")]
+        [SerializeField] private Sprite upChaseSprite;
+        [SerializeField] private Sprite downChaseSprite;
+        [SerializeField] private Sprite leftChaseSprite;
+        [SerializeField] private Sprite rightChaseSprite;
         [SerializeField] private float chaseSpeedScale;
-        [SerializeField] private int idleStandingTime;
         [Space]
         [SerializeField] private AStarPathFinder pathFinder;
         [Header("Attack")]
         [SerializeField] private float attackRate;
         //[SerializeField] private float attackDamage; //while 1-hit game it doesnt need
 
-        private EnemySearcher searcher;
-        private EnemyAttacker attacker;
-        private PlayerController player;
-        private EnemyState currentState;
-        private List<Vector2> path;
+        protected EnemySearcher searcher;
+        protected EnemyAttacker attacker;
+        protected PlayerController player;
+        protected EnemyState currentState;
+        protected List<Vector2> path;
+        protected CancellationTokenSource cancellationSource;
+        private Dictionary<Direction, Sprite> chaseDirectionSprites;
         private Vector2 prevPosition;
         private float prevAttackTime;
-        private CancellationTokenSource cancellationSource;
 
         protected override void Awake()
         {
             base.Awake();
-            Initialize();
-        }
-
-        private void Initialize()
-        {
             searcher = GetComponentInChildren<EnemySearcher>();
             attacker = GetComponentInChildren<EnemyAttacker>();
-            prevPosition = transform.position;
             cancellationSource = new CancellationTokenSource();
             player = FindObjectOfType<PlayerController>();
+            chaseDirectionSprites = new Dictionary<Direction, Sprite>();
+            chaseDirectionSprites.Add(Direction.Left, leftChaseSprite);
+            chaseDirectionSprites.Add(Direction.Right, rightChaseSprite);
+            chaseDirectionSprites.Add(Direction.Up, upChaseSprite);
+            chaseDirectionSprites.Add(Direction.Down, downChaseSprite);
+            prevPosition = transform.position;
         }
 
         private void Start()
@@ -57,7 +67,7 @@ namespace Pigger.GamePlay.Units.Enemies
         {
             if (prevPosition != (Vector2)transform.position)
             {
-                SetDirectionSprite(prevPosition);
+                SetDirection(prevPosition);
                 prevPosition = transform.position;
             }
         }
@@ -73,7 +83,7 @@ namespace Pigger.GamePlay.Units.Enemies
             attacker.targetInAttackRangeEvent -= AttackStateHandler;
         }
 
-        protected override void SetDirectionSprite(Vector2 affectPosition)
+        protected override void SetDirection(Vector2 affectPosition)
         {
             if (Mathf.Abs(transform.position.x - affectPosition.x) >
                 Mathf.Abs(transform.position.y - affectPosition.y))
@@ -98,7 +108,27 @@ namespace Pigger.GamePlay.Units.Enemies
                     currentDirection = Direction.Down;
                 }
             }
-            spriteRenderer.sprite = directionSprites[currentDirection];
+            SetSprite(currentDirection, currentState);
+        }
+
+        protected virtual void SetSprite(Direction direction, EnemyState state)
+        {
+            if (state == EnemyState.Chasing)
+            {
+                spriteRenderer.sprite = chaseDirectionSprites[currentDirection];
+                return;
+            }
+            spriteRenderer.sprite = defaultDirectionSprites[currentDirection];
+        }
+
+        public override void GetDamage()
+        {
+            base.GetDamage();
+        }
+
+        protected override void Die()
+        {
+            base.Die();
         }
 
         private async void Patrol()
@@ -127,7 +157,7 @@ namespace Pigger.GamePlay.Units.Enemies
                     await UniTask.Yield(cancellationSource.Token);
                 }
                 path = null;
-                await UniTask.Delay(idleStandingTime * 1000, cancellationToken: cancellationSource.Token);
+                await UniTask.Delay((int)idleStandingTime * 1000, cancellationToken: cancellationSource.Token);
             }
         }
 
@@ -135,6 +165,7 @@ namespace Pigger.GamePlay.Units.Enemies
         {
             cancellationSource.Cancel();
             cancellationSource = new CancellationTokenSource();
+
             path = pathFinder.GetWorldPath(transform.position, player.transform.position);
             while (CheckPath(path) == false)
             {
@@ -174,7 +205,7 @@ namespace Pigger.GamePlay.Units.Enemies
                 path.RemoveAt(0);
                 await UniTask.Yield(cancellationSource.Token);
             }
-            await UniTask.Delay(idleStandingTime * 1000, cancellationToken: cancellationSource.Token);
+            await UniTask.Delay((int)idleStandingTime * 1000, cancellationToken: cancellationSource.Token);
             path = null;
             SetState(EnemyState.Patrol);
         }
@@ -205,7 +236,7 @@ namespace Pigger.GamePlay.Units.Enemies
             }
         }
 
-        private void SetState(EnemyState state)
+        protected virtual void SetState(EnemyState state)
         {
             switch (state)
             {
@@ -244,7 +275,7 @@ namespace Pigger.GamePlay.Units.Enemies
             }
         }
 
-        private void AttackStateHandler(bool inViewRange)  
+        private void AttackStateHandler(bool inViewRange)
         {
             if (inViewRange == true)
             {
@@ -259,7 +290,7 @@ namespace Pigger.GamePlay.Units.Enemies
                 }
                 SetState(EnemyState.Chasing);
             }
-        }     
+        }
     }
 }
 

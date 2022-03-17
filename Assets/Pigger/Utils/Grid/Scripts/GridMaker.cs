@@ -16,11 +16,18 @@ namespace Pigger.Utils.Grid
         [SerializeField] private int height;
         [SerializeField] private Vector2 bottomLeftCornerPoint;
         [SerializeField] private GridCell cellPrefab;
+        [SerializeField] private bool drawGizmos;
         public int Width { get => width; }
         public int Height { get => height; }
-
         public List<GridCell> gridCells { get; private set; }
+        
+
         private void Awake()
+        {
+            Initialize();
+        }
+
+        private void Initialize()
         {
             gridCells = new List<GridCell>();
             Vector2 startPos = bottomLeftCornerPoint;
@@ -74,6 +81,24 @@ namespace Pigger.Utils.Grid
                 return cell;
             }
             return null;
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (drawGizmos)
+            {
+                Vector2 startPos = bottomLeftCornerPoint;
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        Vector2 pos = startPos + new Vector2(x + (x * _stepX), y * 0.98f);
+                        Gizmos.color = Physics2D.OverlapCircle(pos, 0.2f, LayerMask.GetMask("Obstacle")) ? Color.red : Color.green;
+                        Gizmos.DrawWireSphere(pos, 0.4f);
+                    }
+                    startPos += new Vector2(_offsetNextLine, 0f);
+                }
+            }         
         }
     }
 }

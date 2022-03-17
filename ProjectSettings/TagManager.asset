@@ -17,10 +17,10 @@ TagManager:
   - Player
   - Ground
   - Obstacle
-  - Walkable
-  - NotWalkable
   - Grid
   - 
+  - 
+  - Bomb
   - 
   - 
   - 

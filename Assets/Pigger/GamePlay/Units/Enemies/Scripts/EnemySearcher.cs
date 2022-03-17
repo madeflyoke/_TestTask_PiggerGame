@@ -13,27 +13,36 @@ namespace Pigger.GamePlay.Units.Enemies
         public float ViewRange { get => viewRange; }
         public float ChaseViewRange { get => chaseViewRange; }
         public CircleCollider2D SearchCollider { get; private set; }
+        public bool canSearch { get; set; }
+
         private void Awake()
         {
             SearchCollider = GetComponent<CircleCollider2D>();
             SearchCollider.isTrigger = true;
             SearchCollider.radius = viewRange;
+            canSearch = true;
         }
 
         private void OnTriggerEnter2D(Collider2D collision)
         {
-            if (collision.gameObject.layer == 9)
+            if (canSearch)
             {
-                targetInViewRangeEvent?.Invoke(true);
-            }
+                if (collision.gameObject.layer == 9)
+                {
+                    targetInViewRangeEvent?.Invoke(true);
+                }
+            }           
         }
 
         private void OnTriggerExit2D(Collider2D collision)
         {
-            if (collision.gameObject.layer == 9)
+            if (canSearch)
             {
-                targetInViewRangeEvent?.Invoke(false);
-            }
+                if (collision.gameObject.layer == 9)
+                {
+                    targetInViewRangeEvent?.Invoke(false);
+                }
+            }           
         }
     }
 }

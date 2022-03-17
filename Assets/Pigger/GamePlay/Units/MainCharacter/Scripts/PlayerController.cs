@@ -11,23 +11,18 @@ namespace Pigger.GamePlay.Units.MainCharacter
     {
         public event Action playerDiedEvent;
         public event Action playerGetDamageEvent;
-
-        [Range(1, 5)] //while 1-hit game damage system
-        [SerializeField] private int maxHealth;
-        [SerializeField] private Color damageColor;
+     
         [SerializeField] private ParticleSystem deathEffect;
         [Header("Bomb")]
         [SerializeField] private Bomb bomb;
-        public int MaxHealth { get=>maxHealth;}
+
         private Vector2 moveDirection;
         private CancellationTokenSource cancellationSource;
-        private int currentHealth;
 
         protected override void Awake()
         {
             base.Awake();
             cancellationSource = new CancellationTokenSource();
-            currentHealth = maxHealth;
         }
 
         private void Update()
@@ -46,11 +41,11 @@ namespace Pigger.GamePlay.Units.MainCharacter
             moveDirection = new Vector2(x, y);
             if (x != 0 || y != 0)
             {
-                SetDirectionSprite(moveDirection);
+                SetDirection(moveDirection);
             }
         }
 
-        protected override void SetDirectionSprite(Vector2 direction)
+        protected override void SetDirection(Vector2 direction)
         {
             Direction prevDirection = currentDirection;
 
@@ -76,7 +71,7 @@ namespace Pigger.GamePlay.Units.MainCharacter
             {
                 return;
             }
-            spriteRenderer.sprite = directionSprites[currentDirection];
+            spriteRenderer.sprite = defaultDirectionSprites[currentDirection];
         }
 
         private void FixedUpdate()
@@ -87,15 +82,7 @@ namespace Pigger.GamePlay.Units.MainCharacter
         public override void GetDamage()
         {
             playerGetDamageEvent?.Invoke();
-            base.GetDamage();
-            currentHealth -= 1;
-            if (currentHealth <= 0)
-            {
-                Die();
-                return;
-            }
-            Color defaultColor = spriteRenderer.color;
-            spriteRenderer.DOColor(damageColor, 0.3f).OnComplete(() => spriteRenderer.DOColor(defaultColor, 0.3f));
+            base.GetDamage();          
         }
 
         protected async override void Die()

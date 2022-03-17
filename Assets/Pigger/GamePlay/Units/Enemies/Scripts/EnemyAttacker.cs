@@ -10,26 +10,35 @@ namespace Pigger.GamePlay.Units.Enemies
 
         [SerializeField] private float attackRange;
         private Collider2D attackCollider;
+        public bool canAttack { get; set; }
 
         private void Awake()
         {
             attackCollider = GetComponent<Collider2D>();
             attackCollider.isTrigger = true;
+            canAttack = true;
         }
 
         private void OnTriggerEnter2D(Collider2D collision)
         {
-            if (collision.gameObject.layer == 9)
+            if (canAttack)
             {
-                targetInAttackRangeEvent?.Invoke(true);
-            }
+                if (collision.gameObject.layer == 9)
+                {
+                    targetInAttackRangeEvent?.Invoke(true);
+                }
+            }           
         }
+
         private void OnTriggerExit2D(Collider2D collision)
         {
-            if (collision.gameObject.layer == 9)
+            if (canAttack)
             {
-                targetInAttackRangeEvent?.Invoke(false);
-            }
+                if (collision.gameObject.layer == 9)
+                {
+                    targetInAttackRangeEvent?.Invoke(false);
+                }
+            }           
         }
     }
 }

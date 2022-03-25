@@ -14,10 +14,10 @@ namespace Pigger.GamePlay.Units.Enemies
 
         private void OnTriggerEnter2D(Collider2D bombCollider)
         {
-            if (bombCollider.gameObject.layer==15)
+            if (bombCollider.gameObject.layer==15) //bomb
             {
                 unit.GetDamage();
-                bombCollider.attachedRigidbody.simulated = false; //prevent multiple hits, turned back on in Bomb script
+                bombCollider.attachedRigidbody.simulated = false; //prevent multiple hits, turned back on in the Bomb script
             }
         }
     }

@@ -17,14 +17,14 @@ namespace Pigger.GUI
 
         private void OnEnable()
         {
-            gameManager.endGameEvent += EndGameLogic;
+            gameManager.loseGameEvent += GameLoseLogic;
         }
         private void OnDisable()
         {
-            gameManager.endGameEvent += EndGameLogic;
+            gameManager.loseGameEvent += GameLoseLogic;
         }
 
-        private void EndGameLogic()
+        private void GameLoseLogic()
         {
             endGameScreen.gameObject.SetActive(true);
         }

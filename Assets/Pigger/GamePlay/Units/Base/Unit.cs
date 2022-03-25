@@ -32,6 +32,7 @@ namespace Pigger.GamePlay.Units
         protected Direction currentDirection;
         protected SpriteRenderer spriteRenderer;
         protected int currentHealthPoints;
+        protected float currentSpeed;
         protected Color defaultColor;
 
         protected virtual void Awake()
@@ -46,6 +47,7 @@ namespace Pigger.GamePlay.Units
 
             currentDirection = startLookDirection;
             currentHealthPoints = maxHealthPoints;
+            currentSpeed = defaultSpeed;
             defaultColor = spriteRenderer.color;
         }
 

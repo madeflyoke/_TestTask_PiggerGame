@@ -20,7 +20,6 @@ namespace Pigger.Utils.Grid
         public int Width { get => width; }
         public int Height { get => height; }
         public List<GridCell> gridCells { get; private set; }
-        
 
         private void Awake()
         {
@@ -42,14 +41,14 @@ namespace Pigger.Utils.Grid
                     gridCells.Add(cellObject);
                 }
                 startPos += new Vector2(_offsetNextLine, 0f);
-            }
+            }            
         }
 
         public GridCell GetGridCell(int x, int y)
         {
             GridCell cell = gridCells.Where((s) => s.X == x && s.Y == y).FirstOrDefault();
-            if (cell==null)
-            {              
+            if (cell == null)
+            {
                 return null;
             }
             return cell;
@@ -62,12 +61,12 @@ namespace Pigger.Utils.Grid
             while (true)
             {
                 Collider2D coll = Physics2D.OverlapCircle(worldPos, radius: searchRadius, LayerMask.GetMask("Grid"));
-                if (coll!=null&&coll.TryGetComponent(out cell))            
+                if (coll != null && coll.TryGetComponent(out cell))
                 {
                     if (cell.IsWalkable)
                     {
                         break;
-                    }                         
+                    }
                 }
                 searchRadius += 0.05f; //prevent infinite loop 
                 if (searchRadius > 200f)
@@ -98,7 +97,7 @@ namespace Pigger.Utils.Grid
                     }
                     startPos += new Vector2(_offsetNextLine, 0f);
                 }
-            }         
+            }
         }
     }
 }

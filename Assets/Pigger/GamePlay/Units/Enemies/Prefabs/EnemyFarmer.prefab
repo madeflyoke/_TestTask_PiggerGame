@@ -311,4 +311,4 @@ MonoBehaviour:
   downStunSprite: {fileID: -7363812799561630615, guid: 3c3363cf7ba753248bcf56f6da19edd3, type: 3}
   leftStunSprite: {fileID: -5117249517182225887, guid: 3c3363cf7ba753248bcf56f6da19edd3, type: 3}
   rightStunSprite: {fileID: -7334331953504848966, guid: 3c3363cf7ba753248bcf56f6da19edd3, type: 3}
-  stunDuration: 8
+  stunDuration: 20

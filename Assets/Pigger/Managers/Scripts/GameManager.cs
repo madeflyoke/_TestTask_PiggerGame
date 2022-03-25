@@ -1,38 +1,51 @@
 using Cysharp.Threading.Tasks;
+using Pigger.GamePlay.Points;
 using Pigger.GamePlay.Units.MainCharacter;
 using Pigger.GUI;
 using Pigger.GUI.Screens.EndGame.Buttons;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Zenject;
 
 namespace Pigger.Managers
 {
     public class GameManager : MonoBehaviour
     {
-        public event Action endGameEvent;
+        [Inject] private PlayerController player;
+        [Inject] private PointsController pointsController;
+
+        public event Action loseGameEvent;
+        public event Action winGameEvent;
 
         [SerializeField] private int targetFps;
-        private PlayerController player;
 
         private void Awake()
         {
             Application.targetFrameRate = targetFps;
-            player = FindObjectOfType<PlayerController>();
         }
 
         private void OnEnable()
         {
-            player.playerDiedEvent += EndGame;
+            player.playerDiedEvent += LoseGame;
+            pointsController.gameWinEvent += WinGame;
         }
         private void OnDisable()
         {
-            player.playerDiedEvent -= EndGame;
+            player.playerDiedEvent -= LoseGame;
+            pointsController.gameWinEvent -= WinGame;
         }
 
-        private void EndGame()
+        private void WinGame()
         {
-            endGameEvent?.Invoke();
+            winGameEvent?.Invoke();
+            Debug.Log("WIIIIIIN");
+        }
+
+        private void LoseGame()
+        {
+            loseGameEvent?.Invoke();
         }
 
         private async void RetryGame()

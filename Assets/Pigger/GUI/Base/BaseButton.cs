@@ -8,9 +8,9 @@ namespace Pigger.GUI
     [RequireComponent(typeof(Button))]
     public abstract class BaseButton : MonoBehaviour
     {
-        private Button button;
+        protected Button button;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             button = GetComponent<Button>();
         }

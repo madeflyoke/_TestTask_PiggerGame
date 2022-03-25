@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 7221017915196606927}
   - component: {fileID: 7221017915196606928}
   - component: {fileID: 7221017915196606929}
-  m_Layer: 9
+  - component: {fileID: 6859320329206578004}
+  m_Layer: 0
   m_Name: DamageReciever
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -68,6 +69,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a6c3c0618401b4e4fbbc98bc2608604d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6859320329206578004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7221017915196606926}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a1e2963d7cefc3498f76993fbb84459, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &7221017917082708429
@@ -191,9 +204,15 @@ MonoBehaviour:
   rightMovementSprite: {fileID: -5792511334730316588, guid: d41142eabf5e2cf4aabd9c2b509ad7f6, type: 3}
   startLookDirection: 1
   defaultSpeed: 3.5
-  maxHealthPoints: 3
+  maxHealthPoints: 5
+  damagedSpeedMultiplier: 2
+  damagedSpeedDuration: 2
+  easySlowSpeedMultiplier: 0.9
+  middleSlowSpeedMultiplier: 0.75
+  heavySlowSpeedMultiplier: 0.6
   deathEffect: {fileID: 2263542913133175553, guid: 3ed2c85e37724994abbcd17f87a865ba, type: 3}
   bomb: {fileID: 0}
+  pointsCollector: {fileID: 6859320329206578004}
 --- !u!50 &7221017917082708435
 Rigidbody2D:
   serializedVersion: 4

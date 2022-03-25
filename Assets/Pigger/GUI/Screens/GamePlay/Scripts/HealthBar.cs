@@ -1,23 +1,33 @@
 using Pigger.GamePlay.Units.MainCharacter;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
+using System.Linq;
 
 namespace Pigger.GUI.Screens.GamePlay
 {
     public class HealthBar : MonoBehaviour
     {
+        [Inject] private PlayerController player;
+
+        private enum Side
+        {
+            Left,
+            Right
+        }
+
         [SerializeField] private GameObject healthPointPrefab;
         [SerializeField] private Transform healthPointsSpawnPoint;
+        [SerializeField] private Side pointsSide;
         private Stack<GameObject> healthPoints;
-        private PlayerController player;
 
         private void Awake()
         {
-            player = FindObjectOfType<PlayerController>();
             healthPoints = new Stack<GameObject>();
             for (int i = 0; i < player.MaxHealth; i++)
             {
-                GameObject hp = Instantiate(healthPointPrefab, healthPointsSpawnPoint.position+(i*new Vector3(60f,0f,0f)),
+                Vector3 spawnOffset = i * (pointsSide == Side.Left ? new Vector3(60f, 0f, 0f) : new Vector3(-60f, 0f, 0f));
+                GameObject hp = Instantiate(healthPointPrefab, healthPointsSpawnPoint.position + spawnOffset,
                     Quaternion.identity, this.transform);
                 healthPoints.Push(hp);
             }
@@ -34,12 +44,11 @@ namespace Pigger.GUI.Screens.GamePlay
 
         private void HealthPointsControl()
         {
-            if (healthPoints.Count!=0)
+            if (healthPoints.Count != 0)
             {
                 healthPoints.Pop().SetActive(false);
-            }         
+            }
         }
-
     }
 }
 

@@ -5,11 +5,13 @@ using Pigger.GamePlay.Units.MainCharacter;
 using Pigger.Utils.PathFind;
 using System.Collections.Generic;
 using DG.Tweening;
+using Zenject;
 
 namespace Pigger.GamePlay.Units.Enemies
 {
     public abstract class BaseEnemy : Unit
     {
+        [Inject] private PlayerController player;
         protected enum EnemyState
         {
             None,
@@ -35,7 +37,6 @@ namespace Pigger.GamePlay.Units.Enemies
 
         protected EnemySearcher searcher;
         protected EnemyAttacker attacker;
-        protected PlayerController player;
         protected EnemyState currentState;
         protected List<Vector2> path;
         protected CancellationTokenSource cancellationSource;
@@ -49,7 +50,6 @@ namespace Pigger.GamePlay.Units.Enemies
             searcher = GetComponentInChildren<EnemySearcher>();
             attacker = GetComponentInChildren<EnemyAttacker>();
             cancellationSource = new CancellationTokenSource();
-            player = FindObjectOfType<PlayerController>();
             chaseDirectionSprites = new Dictionary<Direction, Sprite>();
             chaseDirectionSprites.Add(Direction.Left, leftChaseSprite);
             chaseDirectionSprites.Add(Direction.Right, rightChaseSprite);
@@ -150,7 +150,7 @@ namespace Pigger.GamePlay.Units.Enemies
                     while (Vector2.Distance(transform.position, path[0]) > 0.05f)
                     {
                         transform.position = Vector2.MoveTowards(transform.position, path[0],
-                            Time.deltaTime * defaultSpeed);
+                            Time.deltaTime * currentSpeed);
                         await UniTask.Yield(cancellationSource.Token);
                     }
                     path.RemoveAt(0);
@@ -165,7 +165,6 @@ namespace Pigger.GamePlay.Units.Enemies
         {
             cancellationSource.Cancel();
             cancellationSource = new CancellationTokenSource();
-
             path = pathFinder.GetWorldPath(transform.position, player.transform.position);
             while (CheckPath(path) == false)
             {
@@ -173,14 +172,13 @@ namespace Pigger.GamePlay.Units.Enemies
                 await UniTask.Delay(500, cancellationToken: cancellationSource.Token);
                 path = pathFinder.GetWorldPath(transform.position, player.transform.position);
             }
-            searcher.SearchCollider.radius = searcher.ChaseViewRange;
-            float speed = defaultSpeed * chaseSpeedScale;
+            searcher.SearchCollider.radius = searcher.ChaseViewRange;            
             while (currentState == EnemyState.Chasing)
             {
                 if (Vector2.Distance(transform.position, path[0]) > 0.1f)
                 {
                     transform.position = Vector2.MoveTowards(transform.position, path[0],
-                           Time.deltaTime * speed);
+                           Time.deltaTime * currentSpeed);
                 }
                 else   //repeat find path after reached the node
                 {
@@ -199,7 +197,7 @@ namespace Pigger.GamePlay.Units.Enemies
                 while (Vector2.Distance(transform.position, path[0]) > 0.05f)
                 {
                     transform.position = Vector2.MoveTowards(transform.position, path[0],
-                        Time.deltaTime * speed);
+                        Time.deltaTime * currentSpeed);
                     await UniTask.Yield(cancellationSource.Token);
                 }
                 path.RemoveAt(0);
@@ -241,10 +239,12 @@ namespace Pigger.GamePlay.Units.Enemies
             switch (state)
             {
                 case EnemyState.Patrol:
+                    currentSpeed = defaultSpeed;
                     currentState = EnemyState.Patrol;
                     Patrol();
                     break;
                 case EnemyState.Chasing:
+                    currentSpeed = defaultSpeed * chaseSpeedScale;
                     currentState = EnemyState.Chasing;
                     Chase();
                     break;
@@ -275,9 +275,9 @@ namespace Pigger.GamePlay.Units.Enemies
             }
         }
 
-        private void AttackStateHandler(bool inViewRange)
+        private void AttackStateHandler(bool inAttackRange)
         {
-            if (inViewRange == true)
+            if (inAttackRange == true)
             {
                 SetState(EnemyState.Attack);
             }

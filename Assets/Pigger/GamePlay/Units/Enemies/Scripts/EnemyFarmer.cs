@@ -48,6 +48,10 @@ namespace Pigger.GamePlay.Units.Enemies
 
         public override void GetDamage()
         {
+            if (currentState == EnemyState.Stunned)
+            {
+                return;
+            }
             base.GetDamage();
         }
 

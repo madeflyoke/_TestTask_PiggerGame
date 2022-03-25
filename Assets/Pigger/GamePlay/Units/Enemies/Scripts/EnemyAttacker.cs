@@ -21,24 +21,18 @@ namespace Pigger.GamePlay.Units.Enemies
 
         private void OnTriggerEnter2D(Collider2D collision)
         {
-            if (canAttack)
+            if (canAttack && collision.gameObject.layer == 9) //player
             {
-                if (collision.gameObject.layer == 9)
-                {
-                    targetInAttackRangeEvent?.Invoke(true);
-                }
-            }           
+                targetInAttackRangeEvent?.Invoke(true);
+            }
         }
 
         private void OnTriggerExit2D(Collider2D collision)
         {
-            if (canAttack)
+            if (canAttack && collision.gameObject.layer == 9)
             {
-                if (collision.gameObject.layer == 9)
-                {
-                    targetInAttackRangeEvent?.Invoke(false);
-                }
-            }           
+                targetInAttackRangeEvent?.Invoke(false);
+            }
         }
     }
 }

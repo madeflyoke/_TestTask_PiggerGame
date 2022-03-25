@@ -2,15 +2,17 @@ using Pigger.Utils.Grid;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Zenject;
 
 namespace Pigger.Utils.PathFind
 {
     public class AStarPathFinder : MonoBehaviour
     {
+        [Inject] private GridMaker grid;
+
         private const int _straightMoveCost = 10;
         private const int _diagonalMoveCost = 14;
 
-        [SerializeField] private GridMaker grid;
         [SerializeField] private bool canDiagonalMove;
         private List<PathNode> openList;
         private List<PathNode> closedList;

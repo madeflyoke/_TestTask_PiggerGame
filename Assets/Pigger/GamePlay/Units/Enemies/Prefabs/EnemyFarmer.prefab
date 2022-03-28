@@ -299,7 +299,7 @@ MonoBehaviour:
   startLookDirection: 0
   defaultSpeed: 1.1
   maxHealthPoints: 3
-  idleStandingTime: 2
+  idleStandingTime: 1
   upChaseSprite: {fileID: 6772319772625878686, guid: 0ad66273c0ded01479871a9aeb8b6d66, type: 3}
   downChaseSprite: {fileID: -5563435931116900145, guid: 0ad66273c0ded01479871a9aeb8b6d66, type: 3}
   leftChaseSprite: {fileID: -6113192314060189953, guid: 0ad66273c0ded01479871a9aeb8b6d66, type: 3}

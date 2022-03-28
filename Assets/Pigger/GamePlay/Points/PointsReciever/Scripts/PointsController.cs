@@ -11,7 +11,7 @@ namespace Pigger.GamePlay.Points
         [Inject] private PlayerController player;
 
         public event Action pointsRecievedEvent;
-        public event Action gameWinEvent;
+        public event Action allPointsEvent;
 
         [SerializeField] private int pointsToWin;
         public int RecievedPoints { get; private set; }
@@ -31,7 +31,7 @@ namespace Pigger.GamePlay.Points
             pointsRecievedEvent?.Invoke();
             if (RecievedPoints>=pointsToWin)
             {
-                gameWinEvent?.Invoke();
+                allPointsEvent?.Invoke();
                 enabled = false;
                 return;
             }

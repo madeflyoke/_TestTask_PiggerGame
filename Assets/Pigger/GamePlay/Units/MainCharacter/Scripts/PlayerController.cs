@@ -23,12 +23,14 @@ namespace Pigger.GamePlay.Units.MainCharacter
         [SerializeField] private float bombCooldown;
         [SerializeField] private PointsCollector pointsCollector;
         [SerializeField] private ParticleSystem deathEffect;
-
+        [SerializeField] private Joystick inputJoystick;
+        [SerializeField] private float inputDeadZone;
         public PointsCollector PointsCollector { get => pointsCollector; }
         public float BombCooldown { get => bombCooldown; }
+
         private Vector2 moveDirection;
         private CancellationTokenSource cancellationSource;
-        private float prevBombTime;
+        private bool canMove;
 
         protected override void Awake()
         {
@@ -39,56 +41,58 @@ namespace Pigger.GamePlay.Units.MainCharacter
         private void OnEnable()
         {
             pointsCollector.pointCollectedEvent += FullPointsSpeedControl;
+            inputJoystick.joystickIsActiveEvent += InputHandler;
         }
         private void OnDisable()
         {
             pointsCollector.pointCollectedEvent -= FullPointsSpeedControl;
+            inputJoystick.joystickIsActiveEvent -= InputHandler;
         }
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.B)&&Time.time+bombCooldown>=prevBombTime)
+            if (canMove)
             {
-              
-                prevBombTime = Time.time+(bombCooldown*2);
-            }
-
-            float x = Input.GetAxis("Horizontal");
-            float y = Input.GetAxis("Vertical");
-            if (y != 0)
-            {
-                x = 0;
-            }
-            moveDirection = new Vector2(x, y);
-            if (x != 0 || y != 0)
-            { 
-                SetDirection(moveDirection);
-            }
+                SetMoveDirection();
+            }           
         }
 
         private void FixedUpdate()
         {
-            transform.position += ((Vector3)moveDirection * currentSpeed * Time.fixedDeltaTime);
+            if (canMove)
+            {
+                transform.position += ((Vector3)moveDirection * currentSpeed * Time.fixedDeltaTime);
+            }
+        }
+        public void SetBomb()
+        {
+            bomb.SetExplosion();
+        }
+        public override void GetDamage()
+        {
+            playerGetDamageEvent?.Invoke();
+            base.GetDamage();
+            DamagedSpeedControl();
         }
 
         protected override void SetDirection(Vector2 direction)
         {
             Direction prevDirection = currentDirection;
 
-            if (direction.x > 0)
+            if (direction.x > inputJoystick.DeadZone)
             {
                 currentDirection = Direction.Right;
             }
-            else if (direction.x < 0)
+            else if (direction.x < inputJoystick.DeadZone)
             {
                 currentDirection = Direction.Left;
             }
 
-            if (direction.y > 0f)
+            if (direction.y > inputJoystick.DeadZone)
             {
                 currentDirection = Direction.Up;
             }
-            else if (direction.y < 0f)
+            else if (direction.y < inputJoystick.DeadZone)
             {
                 currentDirection = Direction.Down;
             }
@@ -98,18 +102,6 @@ namespace Pigger.GamePlay.Units.MainCharacter
                 return;
             }
             spriteRenderer.sprite = defaultDirectionSprites[currentDirection];
-        }
-
-        public void SetBomb()
-        {
-            bomb.SetExplosion();
-        }
-
-        public override void GetDamage()
-        {
-            playerGetDamageEvent?.Invoke();
-            base.GetDamage();
-            DamagedSpeedControl();
         }
 
         protected async override void Die()
@@ -138,8 +130,38 @@ namespace Pigger.GamePlay.Units.MainCharacter
             cancellationSource = new CancellationTokenSource();
             currentSpeed = defaultSpeed * (pointsCollector.CurrentPoints == 1 ? easySlowSpeedMultiplier
              : (pointsCollector.CurrentPoints == 2 ? middleSlowSpeedMultiplier : heavySlowSpeedMultiplier));
-            await UniTask.WaitWhile((() => pointsCollector.CurrentPoints != 0),cancellationToken: cancellationSource.Token);
+            await UniTask.WaitWhile((() => pointsCollector.CurrentPoints != 0), cancellationToken: cancellationSource.Token);
             currentSpeed = defaultSpeed;
+        }
+
+        private void InputHandler(bool canMove)
+        {
+            this.canMove = canMove;
+        }
+
+        private void SetMoveDirection()
+        {
+            float x = inputJoystick.Horizontal;
+            float y = inputJoystick.Vertical;
+
+            if (x <= inputDeadZone && x >= -inputDeadZone)
+            {
+                x = 0f;
+            }
+            if (y > inputDeadZone + 0.4f || y < -inputDeadZone - 0.4f) //Y-corrections 
+            {
+                y = y < 0 ? -1f : 1f;
+                x = 0f;
+            }
+            else
+            {
+                y = 0;
+            }
+            moveDirection = new Vector2(x, y);
+            if (x != 0f || y != 0f)
+            {
+                SetDirection(moveDirection);
+            }
         }
     }
 }

@@ -210,9 +210,11 @@ MonoBehaviour:
   easySlowSpeedMultiplier: 0.9
   middleSlowSpeedMultiplier: 0.75
   heavySlowSpeedMultiplier: 0.6
-  deathEffect: {fileID: 2263542913133175553, guid: 3ed2c85e37724994abbcd17f87a865ba, type: 3}
   bomb: {fileID: 0}
+  bombCooldown: 5
   pointsCollector: {fileID: 6859320329206578004}
+  deathEffect: {fileID: 2263542913133175553, guid: 3ed2c85e37724994abbcd17f87a865ba, type: 3}
+  inputJoystick: {fileID: 396647614187021641, guid: 8c435fcc1d775d34d9bc61b91eaf0059, type: 3}
 --- !u!50 &7221017917082708435
 Rigidbody2D:
   serializedVersion: 4

@@ -11,7 +11,7 @@ namespace Pigger.GamePlay.Units.Enemies
 {
     public abstract class BaseEnemy : Unit
     {
-        [Inject] private PlayerController player;
+        [Inject] protected PlayerController player;
         protected enum EnemyState
         {
             None,

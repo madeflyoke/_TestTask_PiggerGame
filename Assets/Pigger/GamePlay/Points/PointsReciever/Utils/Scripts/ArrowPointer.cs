@@ -52,6 +52,10 @@ namespace Pigger.GamePlay.Points
             pointer.SetActive(true);
             while (true)
             {
+                if (player.gameObject.activeInHierarchy==false)
+                {
+                    return;
+                }
                 Vector2 targetViewPos = Camera.main.WorldToViewportPoint(target.position);        
                 if (targetViewPos.x >= 0 && targetViewPos.x <= 1 && targetViewPos.y >= 0 && targetViewPos.y <= 1)
                 {                 

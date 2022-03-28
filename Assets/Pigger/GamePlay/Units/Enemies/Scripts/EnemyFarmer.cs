@@ -22,7 +22,7 @@ namespace Pigger.GamePlay.Units.Enemies
             stunDirectionSprites.Add(Direction.Left, leftStunSprite);
             stunDirectionSprites.Add(Direction.Right, rightStunSprite);
             stunDirectionSprites.Add(Direction.Up, upStunSprite);
-            stunDirectionSprites.Add(Direction.Down, downStunSprite);
+            stunDirectionSprites.Add(Direction.Down, downStunSprite);           
         }
 
         protected override void SetState(EnemyState state)

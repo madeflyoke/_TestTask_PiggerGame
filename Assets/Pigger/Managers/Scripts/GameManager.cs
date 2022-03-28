@@ -29,18 +29,17 @@ namespace Pigger.Managers
         private void OnEnable()
         {
             player.playerDiedEvent += LoseGame;
-            pointsController.gameWinEvent += WinGame;
+            pointsController.allPointsEvent += WinGame;
         }
         private void OnDisable()
         {
             player.playerDiedEvent -= LoseGame;
-            pointsController.gameWinEvent -= WinGame;
+            pointsController.allPointsEvent -= WinGame;
         }
 
         private void WinGame()
         {
             winGameEvent?.Invoke();
-            Debug.Log("WIIIIIIN");
         }
 
         private void LoseGame()

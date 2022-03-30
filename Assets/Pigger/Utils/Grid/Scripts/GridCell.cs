@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using Pigger.Utils.Structs;
 using UnityEngine;
 
 namespace Pigger.Utils.Grid
@@ -7,14 +6,12 @@ namespace Pigger.Utils.Grid
     [RequireComponent(typeof(Collider2D))]
     public class GridCell : MonoBehaviour
     {
-        public int X { get => x; }
-        public int Y { get => y; }
         public bool IsWalkable {get => isWalkable;
            
             private set 
             {
                 isWalkable = value;
-                //gameObject.layer = isWalkable? LayerMask.NameToLayer("Walkable"):  //if needed
+                //gameObject.layer = isWalkable? LayerMask.NameToLayer("Walkable"):  //layer if needed
                 //    LayerMask.NameToLayer("NotWalkable");
                 if (value == false)
                 {
@@ -22,11 +19,11 @@ namespace Pigger.Utils.Grid
                 }
             } 
         }
-
-        private int x;
-        private int y;
+        public Point Point { get=> point; }
+        private Point point;
         private Collider2D coll;
         private bool isWalkable;
+
         private void Awake()
         {
             coll = GetComponent<Collider2D>();
@@ -35,10 +32,8 @@ namespace Pigger.Utils.Grid
 
         public void Initialize(int x, int y, bool isWalkable)
         {
-            this.x = x;
-            this.y = y;
+            point = new Point(x, y);
             IsWalkable = isWalkable;
         }
-
     }
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Threading;
 using System.Collections.Generic;
 using Zenject;
+using DG.Tweening;
 
 namespace Pigger.GamePlay.Units.MainCharacter.Utils
 {
@@ -52,15 +53,15 @@ namespace Pigger.GamePlay.Units.MainCharacter.Utils
             gameObject.SetActive(true);
             //up
             int upStages = 0;
-            GridCell startUpCell = grid.GetGridCell(currentCell.X, currentCell.Y + 1);
+            GridCell startUpCell = grid.GetGridCell(currentCell.Point.X, currentCell.Point.Y + 1);
             if (startUpCell!=null&&startUpCell.IsWalkable)
             {
                 upStages++;
-                GridCell midUpCell = grid.GetGridCell(currentCell.X, currentCell.Y + 2);
+                GridCell midUpCell = grid.GetGridCell(currentCell.Point.X, currentCell.Point.Y + 2);
                 if (midUpCell!=null&&midUpCell.IsWalkable)
                 {
                     upStages++;
-                    GridCell endUpCell = grid.GetGridCell(currentCell.X, currentCell.Y + 3);
+                    GridCell endUpCell = grid.GetGridCell(currentCell.Point.X, currentCell.Point.Y + 3);
                     if (endUpCell!=null&&endUpCell.IsWalkable)
                     {
                         upStages++;
@@ -69,15 +70,15 @@ namespace Pigger.GamePlay.Units.MainCharacter.Utils
             }
             //down
             int downStages = 0;
-            GridCell startDownCell = grid.GetGridCell(currentCell.X, currentCell.Y - 1);
+            GridCell startDownCell = grid.GetGridCell(currentCell.Point.X, currentCell.Point.Y - 1);
             if (startDownCell!=null&&startDownCell.IsWalkable)
             {
                 downStages++;
-                GridCell midDownCell = grid.GetGridCell(currentCell.X, currentCell.Y - 2);
+                GridCell midDownCell = grid.GetGridCell(currentCell.Point.X, currentCell.Point.Y - 2);
                 if (midDownCell!=null&&midDownCell.IsWalkable)
                 {
                     downStages++;
-                    GridCell endDownCell = grid.GetGridCell(currentCell.X, currentCell.Y - 3);
+                    GridCell endDownCell = grid.GetGridCell(currentCell.Point.X, currentCell.Point.Y - 3);
                     if (endDownCell!=null&&endDownCell.IsWalkable)
                     {
                         downStages++;
@@ -86,15 +87,15 @@ namespace Pigger.GamePlay.Units.MainCharacter.Utils
             }
             //left
             int leftStages = 0;
-            GridCell startLeftCell = grid.GetGridCell(currentCell.X - 1, currentCell.Y);
+            GridCell startLeftCell = grid.GetGridCell(currentCell.Point.X - 1, currentCell.Point.Y);
             if (startLeftCell != null && startLeftCell.IsWalkable)
             {
                 leftStages++;
-                GridCell midLeftCell = grid.GetGridCell(currentCell.X - 2, currentCell.Y);
+                GridCell midLeftCell = grid.GetGridCell(currentCell.Point.X - 2, currentCell.Point.Y);
                 if (midLeftCell!=null&&midLeftCell.IsWalkable)
                 {
                     leftStages++;
-                    GridCell endLeftCell = grid.GetGridCell(currentCell.X - 3, currentCell.Y);
+                    GridCell endLeftCell = grid.GetGridCell(currentCell.Point.X - 3, currentCell.Point.Y);
                     if (endLeftCell!=null&&endLeftCell.IsWalkable)
                     {
                         leftStages++;
@@ -103,15 +104,15 @@ namespace Pigger.GamePlay.Units.MainCharacter.Utils
             }
             //right
             int rightStages = 0;
-            GridCell startRightCell = grid.GetGridCell(currentCell.X + 1, currentCell.Y);
+            GridCell startRightCell = grid.GetGridCell(currentCell.Point.X + 1, currentCell.Point.Y);
             if (startRightCell!=null&&startRightCell.IsWalkable)
             {
                 rightStages++;
-                GridCell midRightCell = grid.GetGridCell(currentCell.X + 2, currentCell.Y);
+                GridCell midRightCell = grid.GetGridCell(currentCell.Point.X + 2, currentCell.Point.Y);
                 if (midRightCell!=null&&midRightCell.IsWalkable)
                 {
                     rightStages++;
-                    GridCell endRightCell = grid.GetGridCell(currentCell.X + 3, currentCell.Y);
+                    GridCell endRightCell = grid.GetGridCell(currentCell.Point.X + 3, currentCell.Point.Y);
                     if (endRightCell!=null&&endRightCell.IsWalkable)
                     {
                         rightStages++;
@@ -119,7 +120,7 @@ namespace Pigger.GamePlay.Units.MainCharacter.Utils
                 }
             }
             await UniTask.Delay((int)(explosionDelay * 1000), cancellationToken: cancellationSource.Token);
-            spriteRenderer.enabled = false;
+            spriteRenderer.enabled = false; //off bomb sprite
             SetRays(upStages, downStages, leftStages, rightStages);
             await UniTask.Delay((int)(explosionDuration * 1000), cancellationToken: cancellationSource.Token);
             OffRays();
@@ -164,7 +165,7 @@ namespace Pigger.GamePlay.Units.MainCharacter.Utils
         {
             rays.SetActive(false);
             foreach (var item in explosionRays)
-            {
+            {             
                 item.start.gameObject.SetActive(false);
                 item.mid.gameObject.SetActive(false);
                 item.end.gameObject.SetActive(false);

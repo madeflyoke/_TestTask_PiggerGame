@@ -4,7 +4,6 @@ using Pigger.GamePlay.Units.MainCharacter;
 using Pigger.GUI;
 using Pigger.GUI.Screens.EndGame.Buttons;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -24,6 +23,7 @@ namespace Pigger.Managers
         private void Awake()
         {
             Application.targetFrameRate = targetFps;
+            player.gameObject.layer = 9; //turn on player detection
         }
 
         private void OnEnable()
@@ -40,11 +40,13 @@ namespace Pigger.Managers
         private void WinGame()
         {
             winGameEvent?.Invoke();
+            player.gameObject.layer = 0; //turn off player detection after endgame
         }
 
         private void LoseGame()
         {
             loseGameEvent?.Invoke();
+            player.gameObject.layer = 0;
         }
 
         private async void RetryGame()

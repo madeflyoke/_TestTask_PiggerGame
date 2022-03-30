@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Zenject;
+using Pigger.Utils.Structs;
 
 namespace Pigger.Utils.PathFind
 {
@@ -17,24 +18,31 @@ namespace Pigger.Utils.PathFind
         private List<PathNode> openList;
         private List<PathNode> closedList;
         private List<PathNode> nodes;
+        private Dictionary<Point, PathNode> pathNodesByPoint;
+        public void Initialize()
+        {
+            CreateNodes();
+        }
 
         public List<Vector2> GetRandomWorldPath(Vector2 followerPos)
         {
             GridCell cellPos = grid.gridCells.Where(s => s.IsWalkable).
                 ElementAt(Random.Range(0, grid.gridCells.Where(s => s.IsWalkable).Count()));
-            GridCell nearestStartCell = grid.FindNearestCell(followerPos);           
-            List<PathNode> path = FindPath(nearestStartCell.X, nearestStartCell.Y, cellPos.X, cellPos.Y);
+            GridCell nearestStartCell = grid.FindNearestCell(followerPos);
+            List<PathNode> path = FindPath(nearestStartCell.Point.X, nearestStartCell.Point.Y, cellPos.Point.X, cellPos.Point.Y);
             List<Vector2> newPath = NodePathToWorldPath(path);
             if (newPath == null)
             {
                 Debug.LogError("PATH HAD NOT BEEN FOUND");
                 return null;
             }
+#if UNITY_EDITOR
             for (int i = 0; i < newPath.Count - 1; i++)
             {
                 Debug.DrawLine(new Vector2(newPath[i].x, newPath[i].y),
                     new Vector2(newPath[i + 1].x, newPath[i + 1].y), Color.red, 30f);
             }
+#endif
             return newPath;
         }
 
@@ -42,14 +50,14 @@ namespace Pigger.Utils.PathFind
         {
             GridCell cellPosA = grid.FindNearestCell(followerPos);
             GridCell cellPosB = grid.FindNearestCell(destinationPos);
-            if (cellPosA==null||cellPosB==null)
+            if (cellPosA == null || cellPosB == null)
             {
                 Debug.LogError("PATH HAD NOT BEEN FOUND");
                 return null;
             }
-            List<PathNode> path = FindPath(cellPosA.X, cellPosA.Y, cellPosB.X, cellPosB.Y);
+            List<PathNode> path = FindPath(cellPosA.Point.X, cellPosA.Point.Y, cellPosB.Point.X, cellPosB.Point.Y);
             List<Vector2> newPath = NodePathToWorldPath(path);
-            if (newPath==null||newPath.Count<=0)
+            if (newPath == null || newPath.Count <= 0)
             {
                 Debug.LogError("PATH HAD NOT BEEN FOUND");
                 return null;
@@ -59,29 +67,40 @@ namespace Pigger.Utils.PathFind
                 newPath.Add(followerPos);
                 newPath.Reverse();
             }
+#if UNITY_EDITOR
             for (int i = 0; i < newPath.Count - 1; i++)
             {
                 Debug.DrawLine(new Vector2(newPath[i].x, newPath[i].y),
                     new Vector2(newPath[i + 1].x, newPath[i + 1].y), Color.red, 30f);
             }
+#endif
             return newPath;
 
         }
-        private List<PathNode> FindPath(int startX, int startY, int endX, int endY)
+
+        private void CreateNodes()
         {
-            closedList = new List<PathNode>();
             nodes = new List<PathNode>();
+            pathNodesByPoint = new Dictionary<Point, PathNode>();
             for (int y = 0; y < grid.Height; y++)
             {
                 for (int x = 0; x < grid.Width; x++)
                 {
                     PathNode pathNode = new PathNode(x, y);
-                    pathNode.isWalkable = grid.GetGridCell(x,y).IsWalkable ? true : false;
+                    pathNode.isWalkable = grid.GetGridCell(x, y).IsWalkable ? true : false;
                     nodes.Add(pathNode);
-                    pathNode.gCost = int.MaxValue;
-                    pathNode.CalculateFCost();
-                    pathNode.cameFromNode = null;
+                    pathNode.SetDefaultValues();
+                    pathNodesByPoint[pathNode.Point] = pathNode;
                 }
+            }
+        }
+
+        private List<PathNode> FindPath(int startX, int startY, int endX, int endY)
+        {
+            closedList = new List<PathNode>();
+            foreach (PathNode item in nodes)
+            {
+                item.SetDefaultValues();
             }
             PathNode startNode = GetNode(startX, startY);
             PathNode endNode = GetNode(endX, endY);
@@ -94,7 +113,7 @@ namespace Pigger.Utils.PathFind
             while (openList.Count > 0)
             {
                 PathNode currentNode = GetLowestFCostNode(openList);
-                if (currentNode.X == endNode.X && currentNode.Y == endNode.Y)
+                if (currentNode.Point.X == endNode.Point.X && currentNode.Point.Y == endNode.Point.Y)
                 {
                     return CalculatePath(endNode);
                 }
@@ -134,7 +153,7 @@ namespace Pigger.Utils.PathFind
             List<Vector2> worldPosList = new List<Vector2>();
             foreach (PathNode node in pathNodes)
             {
-                worldPosList.Add(grid.GetGridCell(node.X, node.Y).transform.position);
+                worldPosList.Add(grid.GetGridCell(node.Point.X, node.Point.Y).transform.position);
             }
             return worldPosList;
 
@@ -142,60 +161,66 @@ namespace Pigger.Utils.PathFind
 
         private PathNode GetNode(int x, int y)
         {
-            return nodes.Where((s) => s.X == x && s.Y == y).First();
+            Point tmpPoint = new Point(x, y);
+            PathNode node = pathNodesByPoint[tmpPoint];
+            if (node == null)
+            {
+                return null;
+            }
+            return node;
         }
 
         private List<PathNode> GetNeighbourList(PathNode currentNode)
         {
             List<PathNode> neighbourList = new List<PathNode>();
 
-            if (currentNode.X - 1 >= 0)
+            if (currentNode.Point.X - 1 >= 0)
             {
                 //Left
-                neighbourList.Add(GetNode(currentNode.X - 1, currentNode.Y));
+                neighbourList.Add(GetNode(currentNode.Point.X - 1, currentNode.Point.Y));
                 if (canDiagonalMove)
                 {
                     // LeftDown
-                    if (currentNode.Y - 1 >= 0)
+                    if (currentNode.Point.Y - 1 >= 0)
                     {
-                        neighbourList.Add(GetNode(currentNode.X - 1, currentNode.Y - 1));
+                        neighbourList.Add(GetNode(currentNode.Point.X - 1, currentNode.Point.Y - 1));
                     }
                     // LeftUp
-                    if (currentNode.Y + 1 < grid.Height)
+                    if (currentNode.Point.Y + 1 < grid.Height)
                     {
-                        neighbourList.Add(GetNode(currentNode.X - 1, currentNode.Y + 1));
+                        neighbourList.Add(GetNode(currentNode.Point.X - 1, currentNode.Point.Y + 1));
                     }
                 }
             }
 
-            if (currentNode.X + 1 < grid.Width)
+            if (currentNode.Point.X + 1 < grid.Width)
             {
                 //Right
-                neighbourList.Add(GetNode(currentNode.X + 1, currentNode.Y));
+                neighbourList.Add(GetNode(currentNode.Point.X + 1, currentNode.Point.Y));
 
                 if (canDiagonalMove)
                 {
                     //RightDown
-                    if (currentNode.Y - 1 >= 0)
+                    if (currentNode.Point.Y - 1 >= 0)
                     {
-                        neighbourList.Add(GetNode(currentNode.X + 1, currentNode.Y - 1));
+                        neighbourList.Add(GetNode(currentNode.Point.X + 1, currentNode.Point.Y - 1));
                     }
                     //RightUp
-                    if (currentNode.Y + 1 < grid.Height)
+                    if (currentNode.Point.Y + 1 < grid.Height)
                     {
-                        neighbourList.Add(GetNode(currentNode.X + 1, currentNode.Y + 1));
+                        neighbourList.Add(GetNode(currentNode.Point.X + 1, currentNode.Point.Y + 1));
                     }
                 }
             }
             //Down
-            if (currentNode.Y - 1 >= 0)
+            if (currentNode.Point.Y - 1 >= 0)
             {
-                neighbourList.Add(GetNode(currentNode.X, currentNode.Y - 1));
+                neighbourList.Add(GetNode(currentNode.Point.X, currentNode.Point.Y - 1));
             }
             //Up
-            if (currentNode.Y + 1 < grid.Height)
+            if (currentNode.Point.Y + 1 < grid.Height)
             {
-                neighbourList.Add(GetNode(currentNode.X, currentNode.Y + 1));
+                neighbourList.Add(GetNode(currentNode.Point.X, currentNode.Point.Y + 1));
             }
             return neighbourList;
         }
@@ -216,8 +241,8 @@ namespace Pigger.Utils.PathFind
 
         private int CalculateDistance(PathNode a, PathNode b)
         {
-            int xDistance = Mathf.Abs(a.X - b.X);
-            int yDistance = Mathf.Abs(a.Y - b.Y);
+            int xDistance = Mathf.Abs(a.Point.X - b.Point.X);
+            int yDistance = Mathf.Abs(a.Point.Y - b.Point.Y);
             int remain = Mathf.Abs(xDistance - yDistance);
             return _diagonalMoveCost * Mathf.Min(xDistance, yDistance) + _straightMoveCost * remain;
         }

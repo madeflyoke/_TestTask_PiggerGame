@@ -2,16 +2,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Pigger.Utils.PathFind;
-
+using Zenject;
+using Pigger.Utils.Structs;
 
 namespace Pigger.Utils.Grid
 {
     public class GridMaker : MonoBehaviour
     {
+        [Inject] private AStarPathFinder pathFinder;
+
         private const float _stepX = 0.095f;  //individual grid map corrections
         private const float _offsetNextLine = 0.13f;
 
-        [SerializeField] private AStarPathFinder pathFinder;
         [SerializeField] private int width;
         [SerializeField] private int height;
         [SerializeField] private Vector2 bottomLeftCornerPoint;
@@ -20,15 +22,17 @@ namespace Pigger.Utils.Grid
         public int Width { get => width; }
         public int Height { get => height; }
         public List<GridCell> gridCells { get; private set; }
+        public Dictionary<Point, GridCell> gridCellsByPoint;
 
         private void Awake()
         {
             Initialize();
+            pathFinder.Initialize();
         }
-
         private void Initialize()
         {
             gridCells = new List<GridCell>();
+            gridCellsByPoint = new Dictionary<Point, GridCell>();
             Vector2 startPos = bottomLeftCornerPoint;
             for (int y = 0; y < height; y++)
             {
@@ -38,6 +42,7 @@ namespace Pigger.Utils.Grid
                     GridCell cellObject = Instantiate(cellPrefab, pos, Quaternion.identity, transform);
                     cellObject.Initialize(x, y,
                         Physics2D.OverlapCircle(pos, 0.2f, LayerMask.GetMask("Obstacle")) ? false : true);
+                    gridCellsByPoint[cellObject.Point] = cellObject;
                     gridCells.Add(cellObject);
                 }
                 startPos += new Vector2(_offsetNextLine, 0f);
@@ -46,7 +51,8 @@ namespace Pigger.Utils.Grid
 
         public GridCell GetGridCell(int x, int y)
         {
-            GridCell cell = gridCells.Where((s) => s.X == x && s.Y == y).FirstOrDefault();
+            Point tmpPoint = new Point(x, y);
+            GridCell cell = gridCellsByPoint[tmpPoint];
             if (cell == null)
             {
                 return null;

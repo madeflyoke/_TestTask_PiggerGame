@@ -33,7 +33,7 @@ namespace Pigger.GamePlay.Units.MainCharacter
         private bool canMove;
 
         protected override void Awake()
-        {
+        {       
             base.Awake();
             cancellationSource = new CancellationTokenSource();
         }

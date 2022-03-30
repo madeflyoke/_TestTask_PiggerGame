@@ -12,6 +12,8 @@ namespace Pigger.GamePlay.Units.Enemies
     public abstract class BaseEnemy : Unit
     {
         [Inject] protected PlayerController player;
+        [Inject] private AStarPathFinder pathFinder;
+
         protected enum EnemyState
         {
             None,
@@ -29,8 +31,6 @@ namespace Pigger.GamePlay.Units.Enemies
         [SerializeField] private Sprite leftChaseSprite;
         [SerializeField] private Sprite rightChaseSprite;
         [SerializeField] private float chaseSpeedScale;
-        [Space]
-        [SerializeField] private AStarPathFinder pathFinder;
         [Header("Attack")]
         [SerializeField] private float attackRate;
         //[SerializeField] private float attackDamage; //while 1-hit game it doesnt need

@@ -156,18 +156,21 @@ namespace Pigger.Utils.PathFind
                 worldPosList.Add(grid.GetGridCell(node.Point.X, node.Point.Y).transform.position);
             }
             return worldPosList;
-
         }
 
         private PathNode GetNode(int x, int y)
         {
             Point tmpPoint = new Point(x, y);
-            PathNode node = pathNodesByPoint[tmpPoint];
-            if (node == null)
+            if (pathNodesByPoint.ContainsKey(tmpPoint))
             {
-                return null;
-            }
-            return node;
+                PathNode node = pathNodesByPoint[tmpPoint];
+                if (node == null)
+                {
+                    return null;
+                }
+                return node;
+            }          
+            return null;
         }
 
         private List<PathNode> GetNeighbourList(PathNode currentNode)

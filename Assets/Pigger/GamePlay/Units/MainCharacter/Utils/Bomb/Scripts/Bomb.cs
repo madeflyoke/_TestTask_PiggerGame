@@ -48,6 +48,7 @@ namespace Pigger.GamePlay.Units.MainCharacter.Utils
         public async void SetExplosion()
         {
             GridCell currentCell = grid.FindNearestCell(player.transform.position);
+            Debug.Log("X "+currentCell.Point.X + "Y "+currentCell.Point.Y);
             transform.position = currentCell.transform.position;
             spriteRenderer.enabled = true;
             gameObject.SetActive(true);

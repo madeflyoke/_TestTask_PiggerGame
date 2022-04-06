@@ -52,12 +52,16 @@ namespace Pigger.Utils.Grid
         public GridCell GetGridCell(int x, int y)
         {
             Point tmpPoint = new Point(x, y);
-            GridCell cell = gridCellsByPoint[tmpPoint];
-            if (cell == null)
+            if (gridCellsByPoint.ContainsKey(tmpPoint))
             {
-                return null;
-            }
-            return cell;
+                GridCell cell = gridCellsByPoint[tmpPoint];
+                if (cell == null)
+                {
+                    return null;
+                }
+                return cell;
+            }                   
+            return null;
         }
 
         public GridCell FindNearestCell(Vector2 worldPos)

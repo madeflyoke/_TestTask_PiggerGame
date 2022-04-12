@@ -33,11 +33,13 @@ namespace Pigger.GamePlay.Points
         {
             collector.fullPointsCollectedEvent += SetPointer;
             controller.pointsRecievedEvent += OffPointer;
+            player.playerGetDamageEvent += OffPointer;
         }
         private void OnDisable()
         {
             collector.fullPointsCollectedEvent -= SetPointer;
             controller.pointsRecievedEvent -= OffPointer;
+            player.playerGetDamageEvent -= OffPointer;
         }
 
         private void OffPointer()

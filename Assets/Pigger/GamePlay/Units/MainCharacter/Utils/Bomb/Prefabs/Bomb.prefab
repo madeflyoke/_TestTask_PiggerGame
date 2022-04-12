@@ -1656,7 +1656,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 433b5fe04b7a0004d8a18a2d9bae290b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionDelay: 3
+  explosionDelay: 2.7
   explosionDuration: 0.2
   rays: {fileID: 1055228598469406887}
   up:
